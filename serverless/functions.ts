@@ -1,8 +1,16 @@
 import type { AWS } from '@serverless/typescript';
 
 const functions: AWS['functions'] = {
-    test: {
-        
+    setUrl: {
+        handler: "src/functions/setUrl/index.handler",
+        events: [
+            {
+                httpApi: {
+                    path: '/',
+                    method: "post"
+                }
+            }
+        ]
     }
 }
 
