@@ -26,7 +26,8 @@ export async function handler(event: APIGatewayProxyEvent) {
 
         return formatJSONResponse({
             data: {
-                url
+            }, statusCode: 301, headers: {
+                location: url
             }
         })
     } catch (err) {
