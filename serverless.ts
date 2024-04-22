@@ -4,12 +4,19 @@ import functions from './serverless/functions';
 import dynamoResources from './serverless/dynamo';
 
 const serverlessConfiguration: AWS = {
-  service: 'aws-sls-url-shortner',
+  service: 'url-shortner',
   frameworkVersion: '3',
   plugins: ['serverless-esbuild'],
   provider: {
     name: 'aws',
-    runtime: 'nodejs14.x',
+    runtime: 'nodejs20.x',
+    profile: 'sls',
+    region: 'eu-west-2',
+    iamRoleStatements: [{
+      Effect: 'Allow',
+      Action: 'dynamodb:*',
+      Resource: 'arn:aws:dynamodb:${self:provider.region}:${aws:accountId}:table/${self:custom.urlsTable}'
+    }],
     apiGateway: {
       minimumCompressionSize: 1024,
       shouldStartNameWithService: true,
@@ -17,7 +24,7 @@ const serverlessConfiguration: AWS = {
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
-      URL_TABLE: '${self.custom.urlTableName}',
+      URL_TABLE: '${self:custom.urlsTable}',
       BASE_URL: {
         'Fn::Join': [
           '',
@@ -27,7 +34,7 @@ const serverlessConfiguration: AWS = {
     },
   },
   // import the function via paths
-  functions: { functions },
+  functions: functions,
   resources: {
     Resources: {
       ...dynamoResources
@@ -36,7 +43,7 @@ const serverlessConfiguration: AWS = {
   },
   package: { individually: true },
   custom: {
-    urlTableName: '${sls:stage}-url-table',
+    urlsTable: '${sls:stage}-urls',
     esbuild: {
       bundle: true,
       minify: false,
